@@ -140,7 +140,8 @@ class Validator
                 if (str_starts_with($rule, 'date_format:')) {
                     $format = str_replace('date_format:', '', $rule);
                     $date = DateTime::createFromFormat($format, $this->data[$field] ?? '');
-                    if (!$date || $date->format($format) !== ($this->data[$field] ?? '')) {
+
+                    if (!$date || $date->format($format) !== (string)($this->data[$field] ?? '')) {
                         $this->errors[$field][] = "$field geçerli bir tarih formatında olmalıdır: $format.";
                     }
                 }
@@ -154,7 +155,15 @@ class Validator
                     }
 
                     $digits = str_split(preg_replace('/[^\dX]/', '', $isbn));
-                    print_r($digits);
+
+                    $total = 0;
+                    for ($i = 0; $i < count($digits); $i++) {
+                        $total += ($i % 2 === 0 ? 1 : 3) * (int)$digits[$i];
+                    }
+
+                    if ($total % 10 !== 0) {
+                        $this->errors[$field][] = "$field geçerli bir ISBN olmalıdır.";
+                    }
                 }
             }
         }
