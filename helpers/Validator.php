@@ -48,15 +48,30 @@ class Validator
                     }
 
                     if ($table && $column && $value) {
-                        $stmt = $db->prepare("SELECT COUNT(*) FROM $table WHERE $column = :value");
-                        $stmt->bindValue(':value', $value);
-                        $stmt->execute();
+                        $stmt = $db->prepare("SELECT count(*) FROM $table WHERE $column = :value" . (!is_null($id) ? " AND id != :id" : ""));
+                        $stmt->bindValue(':value', strtolower($value), PDO::PARAM_STR);
+
+                        if (!is_null($id)) {
+                            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+                        }
+
+                        try {
+                            $stmt->execute();
+                        } catch (PDOException $e) {
+                            $this->errors[$field][] = "Veritabanı hatası: " . $e->getMessage();
+                            continue;
+                        }
 
                         $count = $stmt->fetchColumn();
+
+                        var_dump($table, $column, $id, $count);
 
                         if ($count > 0) {
                             $this->errors[$field][] = "$field zaten kullanılıyor.";
                         }
+                    } else {
+                        $this->errors[$field][] = "Geçersiz unique kuralı: $rule";
+                        continue;
                     }
                 }
 
@@ -66,6 +81,15 @@ class Validator
 
                     if (isset($this->data[$field]) && strlen($this->data[$field]) > $maxLength) {
                         $this->errors[$field][] = "$field en fazla $maxLength karakter olmalıdır.";
+                    }
+                }
+
+                // Min
+                if (str_starts_with($rule, 'min:')) {
+                    $minLength = (int) str_replace('min:', '', $rule);
+
+                    if (isset($this->data[$field]) && strlen($this->data[$field]) < $minLength) {
+                        $this->errors[$field][] = "$field en az $minLength karakter olmalıdır.";
                     }
                 }
             }

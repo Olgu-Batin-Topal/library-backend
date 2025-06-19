@@ -30,6 +30,21 @@ if (strpos($uri, $apiPrefix . '/authors') === 0) {
             echo $authorController->store($data);
             break;
 
+        case 'PUT':
+            $uriParts = explode('/', trim($uri, '/'));
+            $resource = array_pop($uriParts);
+
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            echo $authorController->update($resource, $data);
+            break;
+
+        case 'DELETE':
+            $uriParts = explode('/', trim($uri, '/'));
+            $resource = array_pop($uriParts);
+            echo $authorController->destroy($resource);
+            break;
+
         default:
             // http_response_code(405);
             echo json_encode(['message' => 'Method Not Allowed']);
