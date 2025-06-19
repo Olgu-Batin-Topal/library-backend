@@ -92,6 +92,72 @@ class Validator
                         $this->errors[$field][] = "$field en az $minLength karakter olmalıdır.";
                     }
                 }
+
+                // Integer
+                if ($rule === 'integer' && isset($this->data[$field]) && !is_numeric($this->data[$field])) {
+                    $this->errors[$field][] = "$field tam sayı olmalıdır.";
+                }
+
+                // Boolean
+                if ($rule === 'boolean' && isset($this->data[$field]) && !in_array($this->data[$field], [0, 1, true, false], true)) {
+                    $this->errors[$field][] = "$field boolean (0 veya 1) olmalıdır.";
+                }
+
+                // Exists
+                if (str_starts_with($rule, 'exists:')) {
+                    $explode = explode(',', str_replace('exists:', '', $rule));
+                    match (count($explode)) {
+                        2 => [$table, $column] = $explode,
+                        default => throw new Exception("Geçersiz exists kuralı: $rule"),
+                    };
+
+                    $value = $this->data[$field] ?? null;
+                    if (empty($value)) {
+                        $this->errors[$field][] = "$field alanı zorunludur.";
+                        continue;
+                    }
+
+                    if ($table && $column && $value) {
+                        $stmt = $db->prepare("SELECT count(*) FROM $table WHERE $column = :value");
+                        $stmt->bindValue(':value', $value);
+
+                        try {
+                            $stmt->execute();
+                        } catch (PDOException $e) {
+                            $this->errors[$field][] = "Veritabanı hatası: " . $e->getMessage();
+                            continue;
+                        }
+
+                        $count = $stmt->fetchColumn();
+
+                        if ($count === 0) {
+                            $this->errors[$field][] = "$field geçerli bir kayıt olmalıdır.";
+                        }
+                    } else {
+                        $this->errors[$field][] = "Geçersiz exists kuralı: $rule";
+                    }
+                }
+
+                // Date format
+                if (str_starts_with($rule, 'date_format:')) {
+                    $format = str_replace('date_format:', '', $rule);
+                    $date = DateTime::createFromFormat($format, $this->data[$field] ?? '');
+                    if (!$date || $date->format($format) !== ($this->data[$field] ?? '')) {
+                        $this->errors[$field][] = "$field geçerli bir tarih formatında olmalıdır: $format.";
+                    }
+                }
+
+                // ISBN
+                if ($rule === 'isbn') {
+                    $isbn = $this->data[$field] ?? '';
+                    if (empty($isbn)) {
+                        $this->errors[$field][] = "$field alanı zorunludur.";
+                        continue;
+                    }
+
+                    $digits = str_split(preg_replace('/[^\dX]/', '', $isbn));
+                    print_r($digits);
+                }
             }
         }
     }
