@@ -64,8 +64,6 @@ class Validator
 
                         $count = $stmt->fetchColumn();
 
-                        var_dump($table, $column, $id, $count);
-
                         if ($count > 0) {
                             $this->errors[$field][] = "$field zaten kullanılıyor.";
                         }
