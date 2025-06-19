@@ -8,6 +8,9 @@ class BaseModel
     protected $fillable = [];
     protected $requests = [];
 
+    /**
+     * BaseModel constructor.
+     */
     public function __construct($requests = [])
     {
         global $db;
@@ -20,27 +23,110 @@ class BaseModel
         }
     }
 
+    /**
+     * Get all records from the table.
+     */
+    public function all()
+    {
+        $sql = sprintf("SELECT * FROM %s", $this->table);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Find a record by its ID.
+     */
+    public function find($id)
+    {
+        $sql = sprintf("SELECT * FROM %s WHERE id = :id", $this->table);
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Create a new record in the table.
+     */
     public function create()
     {
-        $fields = $this->requests;
+        try {
+            $fields = $this->requests;
 
-        $columns = array_keys($fields);
-        $placeholders = array_map(fn($col) => ':' . $col, $columns);
+            $columns = array_keys($fields);
+            $placeholders = array_map(fn($col) => ':' . $col, $columns);
 
 
-        $sql = sprintf(
-            "INSERT INTO %s (%s) VALUES (%s)",
-            $this->table,
-            implode(', ', $columns),
-            implode(', ', $placeholders)
-        );
+            $sql = sprintf(
+                "INSERT INTO %s (%s) VALUES (%s)",
+                $this->table,
+                implode(', ', $columns),
+                implode(', ', $placeholders)
+            );
 
-        $stmt = $this->db->prepare($sql);
+            $stmt = $this->db->prepare($sql);
 
-        foreach ($fields as $key => $value) {
-            $stmt->bindValue(':' . $key, $value);
+            foreach ($fields as $key => $value) {
+                $stmt->bindValue(':' . $key, $value);
+            }
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return $e->getMessage();
         }
+    }
 
-        return $stmt->execute();
+    /**
+     * Update a record by its ID.
+     */
+    public function update($id)
+    {
+        try {
+            $fields = $this->requests;
+
+            $setClause = implode(', ', array_map(fn($col) => "$col = :$col", array_keys($fields)));
+
+            $sql = sprintf(
+                "UPDATE %s SET %s WHERE id = :id",
+                $this->table,
+                $setClause
+            );
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->bindValue(':updated_at', date('Y-m-d H:i:s'));
+            foreach ($fields as $key => $value) {
+                $stmt->bindValue(':' . $key, $value);
+            }
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Delete a record by its ID.
+     */
+    public function delete($id)
+    {
+        try {
+            $sql = sprintf(
+                "DELETE FROM %s WHERE id = :id",
+                $this->table
+            );
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return $e->getMessage();
+        }
     }
 }
