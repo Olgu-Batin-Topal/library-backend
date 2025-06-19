@@ -1,19 +1,30 @@
 <?php
 require_once __DIR__ . '/../models/Books.php';
+require_once __DIR__ . '/../models/Authors.php';
+require_once __DIR__ . '/../models/Category.php';
 require_once __DIR__ . '/../../helpers/Validator.php';
 
 class BookController
 {
     private $bookModel;
+    private $authorModel;
+    private $categoryModel;
 
     public function __construct()
     {
         $this->bookModel = new Books();
+        $this->authorModel = new Authors();
+        $this->categoryModel = new Category();
     }
 
     public function index()
     {
         $books = $this->bookModel->all();
+
+        foreach ($books as &$book) {
+            $book['author_name'] = $this->authorModel->find($book['author_id'])['name'];
+            $book['category_name'] = $this->categoryModel->find($book['category_id'])['name'];
+        }
 
         http_response_code(200);
         return json_encode([
