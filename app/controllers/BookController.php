@@ -15,11 +15,6 @@ class BookController
     {
         $books = $this->bookModel->all();
 
-        if (empty($books)) {
-            http_response_code(404);
-            return json_encode(['message' => 'No books found']);
-        }
-
         http_response_code(200);
         return json_encode([
             'status' => true,

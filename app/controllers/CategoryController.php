@@ -15,11 +15,6 @@ class CategoryController
     {
         $categories = $this->categoryModel->all();
 
-        if (empty($categories)) {
-            http_response_code(404);
-            return json_encode(['message' => 'No categories found']);
-        }
-
         http_response_code(200);
         return json_encode([
             'status' => true,

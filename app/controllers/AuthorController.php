@@ -15,11 +15,6 @@ class AuthorController
     {
         $authors = $this->authorModel->all();
 
-        if (empty($authors)) {
-            http_response_code(404);
-            return json_encode(['message' => 'No authors found']);
-        }
-
         http_response_code(200);
         return json_encode([
             'status' => true,
