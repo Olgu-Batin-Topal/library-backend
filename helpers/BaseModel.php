@@ -115,6 +115,7 @@ class BaseModel
     {
         try {
             $fields = $this->requests;
+            $fields['updated_at'] = date('Y-m-d H:i:s');
 
             $setClause = implode(', ', array_map(fn($col) => "$col = :$col", array_keys($fields)));
 
@@ -127,7 +128,6 @@ class BaseModel
             $stmt = $this->db->prepare($sql);
 
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $stmt->bindValue(':updated_at', date('Y-m-d H:i:s'));
             foreach ($fields as $key => $value) {
                 $stmt->bindValue(':' . $key, $value);
             }
