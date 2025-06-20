@@ -12,6 +12,10 @@ $apiPrefix = "/api";
 $uri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
 
+if (strpos($uri, $apiPrefix) !== 0 && stristr($uri, $apiPrefix)) {
+    $uri = trim($apiPrefix . explode($apiPrefix, $uri)[1]);
+}
+
 if (strpos($uri, $apiPrefix . '/authors') === 0) {
     $authorController = new AuthorController();
 
