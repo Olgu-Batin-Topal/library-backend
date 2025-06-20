@@ -132,4 +132,16 @@ class AuthorController
             'message' => 'Author deleted successfully'
         ]);
     }
+
+    public function getBooksByAuthor($authorId)
+    {
+        $books = $this->authorModel->getBooksByAuthor($authorId);
+
+        http_response_code(200);
+        return json_encode([
+            'status' => true,
+            'data' => $books,
+            'message' => 'Books retrieved successfully',
+        ]);
+    }
 }

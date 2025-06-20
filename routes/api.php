@@ -22,8 +22,14 @@ if (strpos($uri, $apiPrefix . '/authors') === 0) {
 
             if ($resource === 'authors') {
                 echo $authorController->index();
-            } else {
+            } elseif (is_numeric($resource)) {
                 echo $authorController->show($resource);
+            } elseif ($resource === 'books') {
+                $authorId = array_pop($uriParts);
+                echo $authorController->getBooksByAuthor($authorId);
+            } else {
+                http_response_code(404);
+                echo json_encode(['message' => 'Resource not found']);
             }
             break;
 
