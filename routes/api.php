@@ -66,7 +66,7 @@ if (strpos($uri, $apiPrefix . '/authors') === 0) {
             $uriParts = explode('/', trim($uri, '/'));
             $resource = array_pop($uriParts);
 
-            if ($resource === 'books') {
+            if (strpos($resource, 'books') === 0) {
                 echo $bookController->index();
             } elseif (is_numeric($resource)) {
                 echo $bookController->show($resource);
