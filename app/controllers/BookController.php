@@ -19,7 +19,7 @@ class BookController
 
     public function index()
     {
-        $books = $this->bookModel->all();
+        $books = $this->bookModel->allWithPagination($_GET['page'] ?? 1, $_GET['limit'] ?? 10);
 
         foreach ($books as &$book) {
             $book['author_name'] = $this->authorModel->find($book['author_id'])['name'];
@@ -31,6 +31,12 @@ class BookController
             'status' => true,
             'data' => $books,
             'message' => 'İşlem başarılı',
+            'pagination' => [
+                'current_page' => $_GET['page'] ?? 1,
+                'total_pages' => ceil($this->bookModel->count() / ($_GET['limit'] ?? 10)),
+                'per_page' => $_GET['limit'] ?? 10,
+                'total_items' => $this->bookModel->count(),
+            ],
         ]);
     }
 
@@ -151,6 +157,23 @@ class BookController
         return json_encode([
             'status' => true,
             'message' => 'Book deleted successfully'
+        ]);
+    }
+
+    public function search($query)
+    {
+        $books = $this->bookModel->search($query);
+
+        foreach ($books as &$book) {
+            $book['author_name'] = $this->authorModel->find($book['author_id'])['name'];
+            $book['category_name'] = $this->categoryModel->find($book['category_id'])['name'];
+        }
+
+        http_response_code(200);
+        return json_encode([
+            'status' => true,
+            'data' => $books,
+            'message' => 'Search results',
         ]);
     }
 }

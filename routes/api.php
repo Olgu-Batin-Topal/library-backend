@@ -68,8 +68,19 @@ if (strpos($uri, $apiPrefix . '/authors') === 0) {
 
             if ($resource === 'books') {
                 echo $bookController->index();
-            } else {
+            } elseif (is_numeric($resource)) {
                 echo $bookController->show($resource);
+            } elseif (strpos($resource, 'search') === 0) {
+                $sQuery = $_GET['q'] ?? '';
+                if (!empty($sQuery)) {
+                    echo $bookController->search($sQuery);
+                } else {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Search query is required']);
+                }
+            } else {
+                http_response_code(404);
+                echo json_encode(['message' => 'Resource not found']);
             }
             break;
 

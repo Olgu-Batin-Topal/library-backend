@@ -13,4 +13,19 @@ class Books extends BaseModel
         'page_count',
         'is_available'
     ];
+
+    public function __construct($requests = [])
+    {
+        parent::__construct($requests);
+    }
+
+    public function search($query)
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE title LIKE :query OR isbn LIKE :query";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':query', '%' . $query . '%');
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

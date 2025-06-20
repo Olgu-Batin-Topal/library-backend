@@ -36,6 +36,35 @@ class BaseModel
     }
 
     /**
+     * Get all records with pagination.
+     */
+    public function allWithPagination($page = 1, $limit = 10)
+    {
+        $offset = ($page - 1) * $limit;
+        $sql = sprintf("SELECT * FROM %s LIMIT :limit OFFSET :offset", $this->table);
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Count the total number of records in the table.
+     */
+    public function count()
+    {
+        $sql = sprintf("SELECT COUNT(*) FROM %s", $this->table);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        $count = $stmt->fetchColumn();
+
+        return $count ? (int)$count : 0;
+    }
+
+    /**
      * Find a record by its ID.
      */
     public function find($id)
