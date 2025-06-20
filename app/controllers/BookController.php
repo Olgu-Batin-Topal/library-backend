@@ -100,8 +100,8 @@ class BookController
             'title' => 'required|max:255',
             'author_id' => "required|exists:authors,id",
             'category_id' => "required|exists:categories,id",
-            'isbn' => "required|max:13|unique:books,isbn,$id",
-            'publication_year' => 'required|integer|min:1000|max:' . date('Y'),
+            'isbn' => "required|min:13|max:13|unique:books,isbn,$id",
+            'publication_year' => 'required|date_format:Y',
             'page_count' => 'required|integer|min:1',
             'is_available' => 'required|boolean',
         ]);
