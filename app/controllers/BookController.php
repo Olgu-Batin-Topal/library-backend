@@ -17,6 +17,9 @@ class BookController
         $this->categoryModel = new Category();
     }
 
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         $books = $this->bookModel->allWithPagination($_GET['page'] ?? 1, $_GET['limit'] ?? 10);
@@ -40,6 +43,9 @@ class BookController
         ]);
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show($id)
     {
         $book = $this->bookModel->find($id);
@@ -53,6 +59,9 @@ class BookController
         return json_encode($book);
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store($data)
     {
         $validator = new Validator($data, [
@@ -93,6 +102,9 @@ class BookController
         }
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update($id, $data)
     {
         $book = $this->bookModel->find($id);
@@ -139,6 +151,9 @@ class BookController
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy($id)
     {
         $book = $this->bookModel->find($id);
@@ -160,6 +175,9 @@ class BookController
         ]);
     }
 
+    /**
+     * Search for books by title or ISBN.
+     */
     public function search($query)
     {
         $books = $this->bookModel->search($query);

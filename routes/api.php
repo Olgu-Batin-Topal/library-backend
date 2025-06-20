@@ -119,8 +119,11 @@ if (strpos($uri, $apiPrefix . '/authors') === 0) {
 
             if ($resource === 'categories') {
                 echo $categoryController->index();
-            } else {
+            } elseif (is_numeric($resource)) {
                 echo $categoryController->show($resource);
+            } else {
+                http_response_code(404);
+                echo json_encode(['message' => 'Resource not found']);
             }
             break;
 

@@ -62,8 +62,6 @@ class Validator
                             continue;
                         }
 
-                        var_dump($stmt->debugDumpParams());
-
                         $count = $stmt->fetchColumn();
 
                         if ($count > 0) {

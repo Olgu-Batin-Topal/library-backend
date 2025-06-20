@@ -6,9 +6,9 @@ class Authors extends BaseModel
     protected $table = 'authors';
     protected $fillable = ['name', 'email'];
 
-    public function __construct($data = [])
+    public function __construct($requests = [])
     {
-        parent::__construct($data);
+        parent::__construct($requests);
     }
 
     public function getBooksByAuthor($authorId)

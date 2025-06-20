@@ -19,6 +19,9 @@ class Books extends BaseModel
         parent::__construct($requests);
     }
 
+    /**
+     * Search for books by title or ISBN.
+     */
     public function search($query)
     {
         $sql = "SELECT * FROM {$this->table} WHERE title LIKE :query OR isbn LIKE :query";
